@@ -1,5 +1,5 @@
 '''This is the first file 
-    I am making a basic CLI assistnt'''
+    I am making a basic CLI assistant'''
 
 '''Basic feature:
     Say hello ☑️
@@ -7,7 +7,10 @@
     Open a website ☑️
     Task manager
     Set timers
-    Show current weather'''
+    Show current weather
+    Open files locally
+    Play music           
+    '''
 
 from datetime import datetime
 import webbrowser
@@ -39,10 +42,13 @@ def open_browser():
     else:
         print('Invalid site name')
 
+
 '''feature of task manager :
-    1.input the task
+    1.Input:
         -Task
         -Deadline
+        -Priority
+        -Status
     2.add in the current task file
     3.when needed, show the task file displaying tasks in the form a table
     4.delete the task when completed
@@ -51,53 +57,73 @@ def open_browser():
     '''
 
 
-def add_task():
-    task = input("Enter the task: ")
-    deadline = input("Enter the deadline: ")
-
-    # Open the file and add the task with deadline
-    with open("tasks.csv", "r", newline='') as file:
-        # header for the dictionary of the csv file
-        reader = csv.DictReader(file)
-        rows = list(reader)
-
-    with open("tasks.csv", "a", newline='') as file:
-        h = ['Task', 'Deadline']
-        writer = csv.DictWriter(file, fieldnames=h)
-
-        if not rows:
-            # if the file is empty, write the header
-            writer.writeheader()
-
-        writer.writerow({'Task': task, 'Deadline': deadline})
-    print("Task added successfully!")
-    print("Updated task list:\n")
-    print_tasks()
+class Task:
+    def __init__(self, task, deadline, priority, status):
+        self.task = task
+        self.deadline = deadline
+        self.priority = priority
+        self.status = status
 
 
-def complete():
-    pass
-    # task = input("Enter the task you completed: ")
-    # # with open("tasks.csv", "r") as f:
+class Manager:
+    def __init__(self):
+        self.tasks = []
 
-    # print(f"Congratulations on completing {task}!")
-    # print("Updated task list:")
-    # print_tasks()
+    def add(self):
+        task = input("Enter the task: ")
+        deadline = input("Enter the deadline: ")
+        priority = input("Enter the priority: ")
+        status = input("Enter the status: ")
+        new_task = Task(task, deadline, priority, status)
+        self.tasks.append(new_task)
 
+    def remove(self):
+        task_delete = input("Enter the task to delete: ")
+        for task in self.tasks:
+            if task.task == task_delete:
+                self.tasks.remove(task)
+                print(f"Task '{task_delete}' removed.")
+                break
 
-def print_tasks():
-    with open("tasks.csv", newline='') as f:
-        tasks = csv.DictReader(f)
-        for i in range(2)q:
-            content = list(tasks[i].values())
-        print(content)
-        # if not content:
-        #     print("No tasks found.")
-        # else:
-        #     content = [row for row in tasks]
-        #     print(tabulate(content,headers="keys" ,tablefmt="grid"))
-        print(content)
+    def print(self):
+        content = [[i+1, task.task, task.deadline, task.priority, task.status] for i, task in enumerate(self.tasks)]
+        print(tabulate(content, headers=["No", "Task", "Deadline", "Priority", "Status"]))
 
-add_task()
-add_task()
-# complete()
+    def complete(self):
+        task_completed = input("Enter the task you completed: ")
+        for task in self.tasks:
+            if task.task == task_completed:
+                task.status = "Completed"
+                print(f"Task '{task_completed}' marked as completed.")
+                break
+
+    def update(self):
+        task_to_update = input("Enter the task to update: ")
+        for task in self.tasks:
+            if task.task == task_to_update:
+                update_what = input("What do you want to update? (task, deadline, priority, status): ")
+                update_to = input(f"What is the new value for {update_what}? ")
+                setattr(task, update_what, update_to)
+                print(f"Task '{task_to_update}' updated.")
+                break
+    
+
+    def load(self):
+        with open('task.csv', 'r') as file:
+            reader = csv.reader(file)
+            for row in reader:
+                task = Task(row[0], row[1], row[2], row[3])
+                self.tasks.append(task)
+
+    def save(self):
+        with open('task.csv', 'w', newline='') as file:
+            writer = csv.writer(file)
+            for task in self.tasks:
+                writer.writerow([task.task, task.deadline, task.priority, task.status])
+
+manager = Manager()
+manager.add()
+manager.add()
+manager.update()
+manager.remove()
+manager.print()
