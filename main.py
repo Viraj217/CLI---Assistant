@@ -23,10 +23,24 @@ def main():
     running = True
 
     greet()
+    print("Type help if confused.")
+    print("Type 'stop' or 'exit' to shut me down.\n")
     while running:
         user_input = input(">>> ").strip().lower()
         if user_input.lower() in ["hello", "hi"]:
             print("Hello! How can I assist you today?")
+
+
+        elif user_input.lower() == "help":
+            print("Here's what I can help you with today:\n")
+            print("🔹 Say hello")
+            print("🔹 Show current time and date: date or time")
+            print("🔹 Open a website: open website")
+            print("🔹 Manage your tasks: task manager")
+            print("🔹 Set timers: set timer")
+            print("🔹 Show the current weather: weather")
+            print("🔹 Open apps installed on your system: open apps")
+            print("How can I assist you? 🤖")
 
 
         elif user_input.lower() == "time":

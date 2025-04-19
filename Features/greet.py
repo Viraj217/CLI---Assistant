@@ -9,5 +9,4 @@ def greet():
     print("🔹 Set timers")
     print("🔹 Show the current weather")
     print("🔹 Open apps installed on your system")
-    print("🔹 (Say 'stop' or 'exit' to shut me down)\n")
     print("How can I assist you? 🤖")
