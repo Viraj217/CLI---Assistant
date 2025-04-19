@@ -8,172 +8,103 @@
     Task manager ☑️
     Set timers ☑️
     Show current weather ☑️
-    Open apps locally ☑️
-    Play music           
+    Open apps locally ☑️   
     '''
 
-from datetime import datetime
-import webbrowser
-import re
-from tabulate import tabulate
-import csv
-import os
-from threading import Timer
-import time
-import winsound
-import requests
-import subprocess
-import sys
+from Features.greet import greet
+from Features.timer import timer
+from Features.open_apps import open_apps
+from Features.task_manager import Manager
+from Features.weather import weather
+from Features.date_time import dt, display_time
+from Features.open_website import open_browser
 
-'''Greet the user'''
-def greet():
-    print("Hello, this is Jarvis your assistant\nHow can I assist you today?")
+def main():
+    running = True
 
-'''Date and time'''
-def dt():
-    curr = datetime.now()
-    now = datetime.strftime(curr, "%A")
-    print(f"Today is {now}, {curr.strftime("%d %b %Y")}")
+    greet()
+    while running:
+        user_input = input(">>> ").strip().lower()
+        if user_input.lower() in ["hello", "hi"]:
+            print("Hello! How can I assist you today?")
 
 
-def display_time():
-    curr = datetime.now()
-    print(f"Time is {curr.strftime("%I:%M %p")}")
-
-'''Visiting any site'''
-def open_browser():
-    site = input("Which site would like to open? ")
-    group = re.search(r"(https?://)?(www\.)?(?P<name>.+)(\.com)?", site)
-    if group:
-        webbrowser.open(f"{group.group('name')}.com")
-    else:
-        print('Invalid site name')
+        elif user_input.lower() == "time":
+            display_time()
 
 
-'''Task Manager
-    feature of task manager :
-    1.Input:
-        -Task
-        -Deadline
-        -Priority
-        -Status
-    2.add in the current task file
-    3.when needed, show the task file displaying tasks in the form a table
-    4.Update the status when completed
-    5.remove the task from the list
-    6.display a congratulation message when completed
-    7.display the updated task list
-'''
+        elif user_input.lower() == "date":
+            dt()
 
 
-class Task:
-    def __init__(self, task, deadline, priority, status):
-        self.task = task
-        self.deadline = deadline
-        self.priority = priority
-        self.status = status
+        elif user_input.lower() == "open website":
+            open_browser()
 
 
-class Manager:
-    def __init__(self):
-        self.tasks = []
+        elif user_input.lower() == "task manager":
+            print("Welcome to the Task Manager!")
+            tm = Manager()
+            print("You can add, remove, complete, update, and display tasks. (help, add, print, remove, complete, update)\nTo exit write 'stop' or 'exit'")
+            while True:
+                what_todo=input(">>> What would you like to do?" ).lower().strip()
+                if what_todo == "add":
+                    tm.add()
+                    tm.print()
 
-    def add(self):
-        task = input("Enter the task: ")
-        deadline = input("Enter the deadline: ")
-        priority = input("Enter the priority: ")
-        status = input("Enter the status: ")
-        new_task = Task(task, deadline, priority, status)
-        self.tasks.append(new_task)
-        print(f"Task '{task}' added.")
+                elif what_todo == "remove":
+                    tm.load()
+                    tm.remove()
+                    tm.print()
 
-    def remove(self):
-        task_delete = input("Enter the task to delete: ")
-        for task in self.tasks:
-            if task.task == task_delete:
-                self.tasks.remove(task)
-                print(f"Task '{task_delete}' removed.")
-                break
+                elif what_todo == "complete":
+                    tm.load()
+                    tm.print()
+                    tm.complete()
+                    tm.print()
 
-    def print(self):
-        content = [[i+1, task.task, task.deadline, task.priority, task.status] for i, task in enumerate(self.tasks)]
-        print(tabulate(content, headers=["No", "Task", "Deadline", "Priority", "Status"], tablefmt="grid"))
+                elif what_todo == "update":
+                    tm.load()
+                    tm.print()
+                    tm.update()
+                    tm.print()
 
-    def complete(self):
-        task_completed = input("Enter the task you completed: ")
-        for task in self.tasks:
-            if task.task == task_completed:
-                task.status = "Completed"
-                print(f"Task '{task_completed}' marked as completed.")
-                break
+                elif what_todo == "print":
+                    tm.load()
+                    tm.print()
 
-    def update(self):
-        task_to_update = input("Enter the task to update: ")
-        for task in self.tasks:
-            if task.task == task_to_update:
-                update_what = input("What do you want to update? (task, deadline, priority, status): ")
-                update_to = input(f"What is the new value for {update_what}? ")
-                setattr(task, update_what, update_to)
-                print(f"Task '{task_to_update}' updated.")
-                break
-    
-    def load(self):
-        with open('task.csv', 'r') as file:
-            reader = csv.DictReader(file)
-            for row in reader:
-                task = Task(row['Task'], row['Deadline'], row['Priority'], row['Status'])
-                self.tasks.append(task)
+                elif what_todo == "help":
+                    print("You can add, remove, complete, update, print.")
 
-    def save(self):
-        if os.path.exists("task.csv"):
-            with open('task.csv', 'w', newline='') as file:
-                writer = csv.DictWriter(file)
-                for task in self.tasks:
-                    writer.writerow([task.task, task.deadline, task.priority, task.status])
+                elif what_todo in ["stop", "exit"]:
+                    print("Exiting Task Manager.")
+                    break
+
+                else:
+                    print("Invalid option. Please try again.")
+
+                tm.save()
+
+
+        elif user_input.lower() == "set timer":
+            timer()
+
+
+        elif user_input.lower() == "weather":
+            weather()
+
+
+        elif user_input.lower() == "open apps":
+            open_apps()
+
+
+        elif user_input.lower() in ["stop", "exit"]:
+            print("Goodbye!")
+            running = False
+
+
         else:
-            with open('task.csv', 'w', newline='') as file:
-                writer = csv.DictWriter(file, fieldnames=["Task", "Deadline", "Priority", "Status"])
-                writer.writeheader()
-                for task in self.tasks:
-                    writer.writerow({"Task": task.task, "Deadline": task.deadline, "Priority": task.priority, "Status": task.status})
-            self.tasks = []
+            print("I'm sorry, I didn't understand that.")
+            print("Please try again.")
 
-'''Timer
-    feature of timer:
-    1. set a timer for a specific time
-    2. when the time is up, display a message
-    3. Display continuos time like a clock
-'''
-def timer():
-    seconds = int(input("Set a timer in seconds: "))
-    while seconds:
-        mins, secs = divmod(seconds, 60)
-        timer_display = f"{mins:02}:{secs:02}"
-        print(f"\rTime left: {timer_display}", end="")
-        time.sleep(1)
-        seconds -= 1
-    print("\rTime's over!                                                           ") 
-    winsound.Beep(1000, 1000)
-
-'''Display current weather'''
-def weather():
-    url = "http://api.weatherstack.com/current?access_key=69e737841f87cb8f7d29fcd5ab0a0bf3&query=Mumbai"
-    response = requests.get(url)
-    data = response.json()
-    if data:
-        location = data['location']['name']
-        temperature = data['current']['temperature']
-        weather_description = data['current']['weather_descriptions'][0]
-        sunrise = data['current']['astro']['sunrise']
-        sunset = data['current']['astro']['sunset']
-        humidity = data['current']['humidity']
-        feels_like = data['current']['feelslike']
-        wind_speed = data['current']['wind_speed']
-        print(f"Current weather in {location}:\n{temperature}°C but feels like {feels_like}°C\nIt is {weather_description}today\nHumidity: {humidity}%\nWind Speed: {wind_speed} km/h\nSunrise: {sunrise}\nSunset: {sunset}")
-    else:
-        print("Unable to fetch weather data. Please try again.")
-
-'''Open apps locally'''
-def open_apps():
-    app = input("Enter the app you want to open (notepad, cmd, explorer, control, calc, snippingtool): ")
-    subprocess.run([app])
+if __name__ == "__main__":
+    main()
