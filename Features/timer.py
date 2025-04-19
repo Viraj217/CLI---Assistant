@@ -9,7 +9,7 @@ import winsound
     3. Display continuos time like a clock
 '''
 def timer():
-    seconds = int(input("Set a timer in seconds: "))
+    seconds = int(input(">>> Set a timer in seconds: "))
     while seconds:
         mins, secs = divmod(seconds, 60)
         timer_display = f"{mins:02}:{secs:02}"
