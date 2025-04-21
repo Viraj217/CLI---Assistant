@@ -1,20 +1,6 @@
 from tabulate import tabulate
 import csv
-
-'''Task Manager
-    feature of task manager :
-    1.Input:
-        -Task
-        -Deadline
-        -Priority
-        -Status
-    2.add in the current task file
-    3.when needed, show the task file displaying tasks in the form a table
-    4.Update the status when completed
-    5.remove the task from the list
-    6.display a congratulation message when completed
-    7.display the updated task list
-'''
+import os
 
 class Task:
     def __init__(self, task, deadline, priority, status):
@@ -22,7 +8,6 @@ class Task:
         self.deadline = deadline
         self.priority = priority
         self.status = status
-
 
 class Manager:
     def __init__(self):
@@ -34,13 +19,13 @@ class Manager:
             if existing_task.task == task:
                 print(f"Task '{task}' already exists. Please add a different task.")
                 return  
-
         deadline = input("Enter the deadline: ")
         priority = input("Enter the priority: ")
         status = input("Enter the status: ")
         new_task = Task(task, deadline, priority, status)
         self.tasks.append(new_task)
         print(f"Task '{task}' added.")
+                
 
     def remove(self):
         task_delete = input("Enter the task to delete: ")
@@ -51,8 +36,11 @@ class Manager:
                 break
 
     def print(self):
-        content = [[i+1, task.task, task.deadline, task.priority, task.status] for i, task in enumerate(self.tasks)]
-        print("\n"+tabulate(content, headers=["No", "Task", "Deadline", "Priority", "Status"], tablefmt="grid"))
+        if not self.tasks:
+            print("No tasks to display.")
+            return
+        content = [[i + 1, task.task, task.deadline, task.priority, task.status] for i, task in enumerate(self.tasks)]
+        print("\n" + tabulate(content, headers=["No", "Task", "Deadline", "Priority", "Status"], tablefmt="grid"))
 
     def complete(self):
         task_completed = input("Enter the task you completed: ")
@@ -87,12 +75,15 @@ class Manager:
             print("Please add a task first.")
             return False
         return True
+    
 
     def save(self):
-        with open('task.csv', 'a', newline='') as file:
+        with open('task.csv', 'w', newline='') as file:
             fieldnames = ["Task", "Deadline", "Priority", "Status"]
             writer = csv.DictWriter(file, fieldnames=fieldnames)
+
             writer.writeheader()
+
             for task in self.tasks:
                 writer.writerow({
                     "Task": task.task,
@@ -101,3 +92,7 @@ class Manager:
                     "Status": task.status
                 })
         self.tasks.clear()
+        
+    def flush(self):
+        self.tasks.clear()
+
