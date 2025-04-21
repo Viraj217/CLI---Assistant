@@ -1,4 +1,4 @@
-from threading import Timer
+from word2number import w2n
 import time
 import winsound
 
@@ -9,7 +9,11 @@ import winsound
     3. Display continuos time like a clock
 '''
 def timer():
-    seconds = int(input(">>> Set a timer in seconds: "))
+    seconds = input(">>> Set a timer in seconds(with no floating points): ")
+    if not seconds.isdigit():
+        seconds = int(w2n.word_to_num(seconds))
+    else:
+        seconds = int(seconds)
     while seconds:
         mins, secs = divmod(seconds, 60)
         timer_display = f"{mins:02}:{secs:02}"

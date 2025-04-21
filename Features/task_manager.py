@@ -30,6 +30,11 @@ class Manager:
 
     def add(self):
         task = input("Enter the task: ")
+        for existing_task in self.tasks:
+            if existing_task.task == task:
+                print(f"Task '{task}' already exists. Please add a different task.")
+                return  
+
         deadline = input("Enter the deadline: ")
         priority = input("Enter the priority: ")
         status = input("Enter the status: ")
@@ -47,7 +52,7 @@ class Manager:
 
     def print(self):
         content = [[i+1, task.task, task.deadline, task.priority, task.status] for i, task in enumerate(self.tasks)]
-        print(tabulate(content, headers=["No", "Task", "Deadline", "Priority", "Status"], tablefmt="grid"))
+        print("\n"+tabulate(content, headers=["No", "Task", "Deadline", "Priority", "Status"], tablefmt="grid"))
 
     def complete(self):
         task_completed = input("Enter the task you completed: ")
@@ -74,13 +79,17 @@ class Manager:
             with open('task.csv', 'r') as file:
                 reader = csv.DictReader(file)
                 for row in reader:
+                    if any(existing_task.task == row['Task'] for existing_task in self.tasks):
+                        continue  
                     task = Task(row['Task'], row['Deadline'], row['Priority'], row['Status'])
                     self.tasks.append(task)
         except FileNotFoundError:
             print("Please add a task first.")
+            return False
+        return True
 
     def save(self):
-        with open('task.csv', 'w', newline='') as file:
+        with open('task.csv', 'a', newline='') as file:
             fieldnames = ["Task", "Deadline", "Priority", "Status"]
             writer = csv.DictWriter(file, fieldnames=fieldnames)
             writer.writeheader()
@@ -91,5 +100,4 @@ class Manager:
                     "Priority": task.priority,
                     "Status": task.status
                 })
-            self.tasks.clear()
-
+        self.tasks.clear()

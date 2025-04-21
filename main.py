@@ -60,43 +60,58 @@ def main():
             tm = Manager()
             print("You can add, remove, complete, update, and display tasks. (help, add, print, remove, complete, update)\nTo exit write 'stop' or 'exit'")
             while True:
-                what_todo=input(">>> What would you like to do?" ).lower().strip()
+                what_todo=input(">>> What would you like to do? ").lower().strip()
                 if what_todo == "add":
                     tm.add()
                     tm.print()
+                    tm.save()
 
                 elif what_todo == "remove":
                     tm.load()
+                    if not tm.load():
+                        print("Add a task first.")  
+                        continue
                     tm.remove()
                     tm.print()
+                    tm.save()
 
                 elif what_todo == "complete":
                     tm.load()
+                    if not tm.load():  
+                        print("Add a task first.")
+                        continue
                     tm.print()
                     tm.complete()
                     tm.print()
+                    tm.save()
 
                 elif what_todo == "update":
                     tm.load()
+                    if not tm.load(): 
+                        print("Add a task first.")
+                        continue
                     tm.print()
                     tm.update()
                     tm.print()
+                    tm.save()
 
                 elif what_todo == "print":
                     tm.load()
+                    if not tm.load():
+                        print("Add a task first.")
+                        continue
                     tm.print()
+                    tm.save()
 
                 elif what_todo == "help":
                     print("You can add, remove, complete, update, print.")
 
-                elif what_todo in ["stop", "exit"]:
+                elif what_todo in ["stop", "exit", "close", "quit"]:
                     print("Exiting Task Manager.")
                     break
 
                 else:
                     print("Invalid option. Please try again.")
-
-                tm.save()
 
 
         elif user_input.lower() == "set timer":
